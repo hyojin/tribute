@@ -106,6 +106,7 @@ class TributeEvents {
         instance.updateSelection(this)
 
         if (event.keyCode === 27) return
+        if (instance.isComposing(event)) return
 
         if (!instance.tribute.allowSpaces && instance.tribute.hasTrailingSpace) {
             instance.tribute.hasTrailingSpace = false;
@@ -119,13 +120,13 @@ class TributeEvents {
                 instance.callbacks().triggerChar(event, this, '')
             } else {
                 let keyCode = instance.getKeyCode(instance, this, event)
-    
+
                 if (isNaN(keyCode) || !keyCode) return
-    
+
                 let trigger = instance.tribute.triggers().find(trigger => {
                     return trigger.charCodeAt(0) === keyCode
                 })
-    
+
                 if (typeof trigger !== 'undefined') {
                     instance.callbacks().triggerChar(event, this, trigger)
                 }
@@ -309,6 +310,14 @@ class TributeEvents {
       }
 
       return height
+    }
+
+    isComposing(event) {
+        if (event.type === 'keyup' && event.isComposing) {
+            return true
+        }
+
+        return false
     }
 
 }
