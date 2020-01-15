@@ -55,7 +55,7 @@ class Tribute {
                 // class applied to selected item
                 selectClass: selectClass,
 
-                // class applied to the Container 
+                // class applied to the Container
                 containerClass: containerClass,
 
                 // function called on select that retuns the content to insert
@@ -205,9 +205,11 @@ class Tribute {
     }
 
     showMenuFor(element, scrollTo) {
+        console.log('[Tribute] showMenuFor')
         // Only proceed if menu isn't already shown for the current element & mentionText
         if (this.isActive && this.current.element === element && this.current.mentionText === this.currentMentionTextSnapshot) {
-          return
+            console.log('[Tribute] showMenuFor: Menu already exist')
+            return
         }
         this.currentMentionTextSnapshot = this.current.mentionText
 
@@ -255,6 +257,7 @@ class Tribute {
 
             let ul = this.menu.querySelector('ul')
 
+            console.log('[Tribute] showMenuFor: before positionMenuAtCaret')
             this.range.positionMenuAtCaret(scrollTo)
 
             if (!items.length) {
@@ -287,9 +290,14 @@ class Tribute {
                 li.innerHTML = this.current.collection.menuItemTemplate(item)
                 fragment.appendChild(li)
             })
-            ul.appendChild(fragment)
+            console.log('[Tribute] showMenuFor: before ul appendChild')
+
+            window.setTimeout(() => {
+                ul.appendChild(fragment)
+            }, 1000)
         }
 
+        console.log('[Tribute] showMenuFor: Before processValues')
         if (typeof this.current.collection.values === 'function') {
             this.current.collection.values(this.current.mentionText, processValues)
         } else {

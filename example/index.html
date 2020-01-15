@@ -165,15 +165,27 @@
       // example of alternative callback
       var tribute = new Tribute({
         // menuContainer: document.getElementById('content'),
+        // values: [
+        //   {
+        //     key: "Jordan Humphreys",
+        //     value: "Jordan Humphreys",
+        //     email: "getstarted@zurb.com"
+        //   },
+        //   {
+        //     key: "Sir Walter Riley",
+        //     value: "Sir Walter Riley",
+        //     email: "getstarted+riley@zurb.com"
+        //   }
+        // ],
         values: [
           {
-            key: "Jordan Humphreys",
-            value: "Jordan Humphreys",
+            key: "가렌",
+            value: "가렌",
             email: "getstarted@zurb.com"
           },
           {
-            key: "Sir Walter Riley",
-            value: "Sir Walter Riley",
+            key: "다리우스",
+            value: "다리우스",
             email: "getstarted+riley@zurb.com"
           }
         ],
@@ -270,18 +282,18 @@
           console.log("Matched item:", e.detail.item);
         });
 
-      document
-        .getElementById("test")
-        .addEventListener("tribute-no-match", function(e) {
-          var values = [
-            {
-              key: "Cheese Tacos",
-              value: "Cheese Tacos",
-              email: "cheesetacos@zurb.com"
-            }
-          ];
-          tribute.appendCurrent(values);
-        });
+      // document
+      //   .getElementById("test")
+      //   .addEventListener("tribute-no-match", function(e) {
+      //     var values = [
+      //       {
+      //         key: "Cheese Tacos",
+      //         value: "Cheese Tacos",
+      //         email: "cheesetacos@zurb.com"
+      //       }
+      //     ];
+      //     tribute.appendCurrent(values);
+      //   });
 
       var activateLink = document.getElementById("activateInput");
 

@@ -20,6 +20,7 @@ class TributeRange {
         return iframe.contentWindow.document
     }
 
+    // TODO: UI Rendering is blocked in FF
     positionMenuAtCaret(scrollTo) {
         let context = this.tribute.current,
             coordinates
@@ -28,50 +29,54 @@ class TributeRange {
 
         if (typeof info !== 'undefined') {
 
-            if(!this.tribute.positionMenu){
-                this.tribute.menu.style.cssText = `display: block;`
-                return
-            }
-
-            if (!this.isContentEditable(context.element)) {
-                coordinates = this.getTextAreaOrInputUnderlinePosition(this.tribute.current.element,
-                    info.mentionPosition)
-            }
-            else {
-                coordinates = this.getContentEditableCaretPosition(info.mentionPosition)
-            }
-
-            this.tribute.menu.style.cssText = `top: ${coordinates.top}px;
-                                     left: ${coordinates.left}px;
-                                     right: ${coordinates.right}px;
-                                     bottom: ${coordinates.bottom}px;
-                                     position: absolute;
-                                     display: block;`
-
-            if (coordinates.left === 'auto') {
-                this.tribute.menu.style.left = 'auto'
-            }
-
-            if (coordinates.top === 'auto') {
-                this.tribute.menu.style.top = 'auto'
-            }
-
-            if (scrollTo) this.scrollIntoView()
-
             window.setTimeout(() => {
-                let menuDimensions = {
-                   width: this.tribute.menu.offsetWidth,
-                   height: this.tribute.menu.offsetHeight
+                if(!this.tribute.positionMenu){
+                    this.tribute.menu.style.cssText = `display: block;`
+                    return
                 }
-                let menuIsOffScreen = this.isMenuOffScreen(coordinates, menuDimensions)
 
-                let menuIsOffScreenHorizontally = window.innerWidth > menuDimensions.width && (menuIsOffScreen.left || menuIsOffScreen.right)
-                let menuIsOffScreenVertically = window.innerHeight > menuDimensions.height && (menuIsOffScreen.top || menuIsOffScreen.bottom)
-                if (menuIsOffScreenHorizontally || menuIsOffScreenVertically) {
-                    this.tribute.menu.style.cssText = 'display: none'
-                    this.positionMenuAtCaret(scrollTo)
+                if (!this.isContentEditable(context.element)) {
+                    coordinates = this.getTextAreaOrInputUnderlinePosition(this.tribute.current.element,
+                        info.mentionPosition)
                 }
-            }, 0)
+                else {
+                    coordinates = this.getContentEditableCaretPosition(info.mentionPosition)
+                }
+
+                this.tribute.menu.style.cssText = `top: ${coordinates.top}px;
+                                         left: ${coordinates.left}px;
+                                         right: ${coordinates.right}px;
+                                         bottom: ${coordinates.bottom}px;
+                                         position: absolute;
+                                         display: block;`
+
+                if (coordinates.left === 'auto') {
+                    this.tribute.menu.style.left = 'auto'
+                }
+
+                if (coordinates.top === 'auto') {
+                    this.tribute.menu.style.top = 'auto'
+                }
+
+                window.setTimeout(() => {
+                    if (scrollTo) this.scrollIntoView()
+                }, 1000)
+
+                window.setTimeout(() => {
+                    let menuDimensions = {
+                       width: this.tribute.menu.offsetWidth,
+                       height: this.tribute.menu.offsetHeight
+                    }
+                    let menuIsOffScreen = this.isMenuOffScreen(coordinates, menuDimensions)
+
+                    let menuIsOffScreenHorizontally = window.innerWidth > menuDimensions.width && (menuIsOffScreen.left || menuIsOffScreen.right)
+                    let menuIsOffScreenVertically = window.innerHeight > menuDimensions.height && (menuIsOffScreen.top || menuIsOffScreen.bottom)
+                    if (menuIsOffScreenHorizontally || menuIsOffScreenVertically) {
+                        this.tribute.menu.style.cssText = 'display: none'
+                        this.positionMenuAtCaret(scrollTo)
+                    }
+                }, 0)
+            }, 1000)
 
         } else {
             this.tribute.menu.style.cssText = 'display: none'
@@ -158,7 +163,7 @@ class TributeRange {
                 }
                 this.pasteHtml(text, info.mentionPosition, endPos)
             }
-            
+
             context.element.dispatchEvent(new CustomEvent('input', { bubbles: true }))
             context.element.dispatchEvent(replaceEvent)
         }
@@ -551,6 +556,7 @@ class TributeRange {
         return coordinates
     }
 
+    // TODO: UI Rendering is blocked in FF
     getContentEditableCaretPosition(selectedNodePosition) {
         let markerTextChar = '﻿'
         let markerEl, markerId = `sel_${new Date().getTime()}_${Math.random().toString().substr(2)}`

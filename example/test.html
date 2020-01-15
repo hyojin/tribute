@@ -1,0 +1,32 @@
+<html>
+  <body>
+    <input id="test" />
+    <textarea id="test-textarea"></textarea>
+    <p id="test-p" contenteditable="true">aa</p>
+    <script>
+      var input = document.querySelector('#test');
+      console.log(input);
+
+      input.addEventListener('keyup', function() {console.log('keyup')});
+      input.addEventListener('keydown', function() {console.log('keydown')});
+      input.addEventListener('compositionstart', function() {console.log('compositionstart')});
+      input.addEventListener('compositionend', function() {console.log('compositionend')});
+
+      var textarea = document.querySelector('#test-textarea');
+      console.log(textarea);
+
+      textarea.addEventListener('keyup', function() {console.log('keyup')});
+      textarea.addEventListener('keydown', function() {console.log('keydown')});
+      textarea.addEventListener('compositionstart', function() {console.log('compositionstart')});
+      textarea.addEventListener('compositionend', function() {console.log('compositionend')});
+
+      var p = document.querySelector('#test-p');
+      console.log(p);
+
+      p.addEventListener('keyup', function() {console.log('keyup')});
+      p.addEventListener('keydown', function() {console.log('keydown')});
+      p.addEventListener('compositionstart', function() {console.log('compositionstart')});
+      p.addEventListener('compositionend', function() {console.log('compositionend')});
+    </script>
+  </body>
+</html>

@@ -106,7 +106,7 @@ function () {
         iframe: iframe,
         // class applied to selected item
         selectClass: selectClass,
-        // class applied to the Container 
+        // class applied to the Container
         containerClass: containerClass,
         // function called on select that retuns the content to insert
         selectTemplate: (selectTemplate || Tribute.defaultSelectTemplate).bind(this),
@@ -239,8 +239,10 @@ function () {
     value: function showMenuFor(element, scrollTo) {
       var _this2 = this;
 
-      // Only proceed if menu isn't already shown for the current element & mentionText
+      console.log('[Tribute] showMenuFor'); // Only proceed if menu isn't already shown for the current element & mentionText
+
       if (this.isActive && this.current.element === element && this.current.mentionText === this.currentMentionTextSnapshot) {
+        console.log('[Tribute] showMenuFor: Menu already exist');
         return;
       }
 
@@ -288,6 +290,8 @@ function () {
 
         var ul = _this2.menu.querySelector('ul');
 
+        console.log('[Tribute] showMenuFor: before positionMenuAtCaret');
+
         _this2.range.positionMenuAtCaret(scrollTo);
 
         if (!items.length) {
@@ -332,8 +336,13 @@ function () {
           li.innerHTML = _this2.current.collection.menuItemTemplate(item);
           fragment.appendChild(li);
         });
-        ul.appendChild(fragment);
+        console.log('[Tribute] showMenuFor: before ul appendChild');
+        window.setTimeout(function () {
+          ul.appendChild(fragment);
+        }, 1000);
       };
+
+      console.log('[Tribute] showMenuFor: Before processValues');
 
       if (typeof this.current.collection.values === 'function') {
         this.current.collection.values(this.current.mentionText, processValues);
@@ -567,9 +576,11 @@ function () {
       element.boundKeydown = this.keydown.bind(element, this);
       element.boundKeyup = this.keyup.bind(element, this);
       element.boundInput = this.input.bind(element, this);
+      element.boundCompostionend = this.compostionend.bind(element, this);
       element.addEventListener('keydown', element.boundKeydown, false);
       element.addEventListener('keyup', element.boundKeyup, false);
       element.addEventListener('input', element.boundInput, false);
+      element.addEventListener('compositionend', element.boundCompostionend, false);
     }
   }, {
     key: "unbind",
@@ -577,13 +588,17 @@ function () {
       element.removeEventListener('keydown', element.boundKeydown, false);
       element.removeEventListener('keyup', element.boundKeyup, false);
       element.removeEventListener('input', element.boundInput, false);
+      element.removeEventListener('compositionend', element.boundCompostionend, false);
       delete element.boundKeydown;
       delete element.boundKeyup;
       delete element.boundInput;
+      delete element.boundCompostionend;
     }
   }, {
     key: "keydown",
     value: function keydown(instance, event) {
+      console.log('[TributeEvents] keydown');
+
       if (instance.shouldDeactivate(event)) {
         instance.tribute.isActive = false;
         instance.tribute.hideMenu();
@@ -601,6 +616,7 @@ function () {
   }, {
     key: "input",
     value: function input(instance, event) {
+      console.log('[TributeEvents] input');
       instance.inputEvent = true;
       instance.keyup.call(this, instance, event);
     }
@@ -634,12 +650,20 @@ function () {
   }, {
     key: "keyup",
     value: function keyup(instance, event) {
+      console.log('[TributeEvents] keyup');
+
       if (instance.inputEvent) {
         instance.inputEvent = false;
       }
 
       instance.updateSelection(this);
       if (event.keyCode === 27) return;
+      console.log('[TributeEvents] keyup: event');
+      console.log(event);
+
+      if (event.type === 'keyup' && event.isComposing) {
+        return;
+      }
 
       if (!instance.tribute.allowSpaces && instance.tribute.hasTrailingSpace) {
         instance.tribute.hasTrailingSpace = false;
@@ -667,6 +691,45 @@ function () {
       if ((instance.tribute.current.trigger || instance.tribute.autocompleteMode) && instance.commandEvent === false || instance.tribute.isActive && event.keyCode === 8) {
         instance.tribute.showMenuFor(this, true);
       }
+    }
+  }, {
+    key: "compostionend",
+    value: function compostionend(instance, event) {
+      console.log('[TributeEvents] compostionend'); // if (instance.inputEvent) {
+      //     instance.inputEvent = false
+      // }
+      // instance.updateSelection(this)
+      // if (event.keyCode === 27) return
+      // console.log('[TributeEvents] keyup: event')
+      // console.log(event)
+      // if (event.isComposing) {
+      //     return
+      // }
+      // if (!instance.tribute.allowSpaces && instance.tribute.hasTrailingSpace) {
+      //     instance.tribute.hasTrailingSpace = false;
+      //     instance.commandEvent = true;
+      //     instance.callbacks()["space"](event, this);
+      //     return
+      // }
+      // if (!instance.tribute.isActive) {
+      //     if (instance.tribute.autocompleteMode) {
+      //         instance.callbacks().triggerChar(event, this, '')
+      //     } else {
+      //         let keyCode = instance.getKeyCode(instance, this, event)
+      //         if (isNaN(keyCode) || !keyCode) return
+      //         let trigger = instance.tribute.triggers().find(trigger => {
+      //             return trigger.charCodeAt(0) === keyCode
+      //         })
+      //         if (typeof trigger !== 'undefined') {
+      //             instance.callbacks().triggerChar(event, this, trigger)
+      //         }
+      //     }
+      // }
+      // if ((instance.tribute.current.trigger || instance.tribute.autocompleteMode)
+      //     && instance.commandEvent === false
+      //     || instance.tribute.isActive && event.keyCode === 8) {
+      //   instance.tribute.showMenuFor(this, true)
+      // }
     }
   }, {
     key: "shouldDeactivate",
@@ -1025,7 +1088,8 @@ function () {
       }
 
       return iframe.contentWindow.document;
-    }
+    } // TODO: UI Rendering is blocked in FF
+
   }, {
     key: "positionMenuAtCaret",
     value: function positionMenuAtCaret(scrollTo) {
@@ -1036,45 +1100,49 @@ function () {
       var info = this.getTriggerInfo(false, this.tribute.hasTrailingSpace, true, this.tribute.allowSpaces, this.tribute.autocompleteMode);
 
       if (typeof info !== 'undefined') {
-        if (!this.tribute.positionMenu) {
-          this.tribute.menu.style.cssText = "display: block;";
-          return;
-        }
-
-        if (!this.isContentEditable(context.element)) {
-          coordinates = this.getTextAreaOrInputUnderlinePosition(this.tribute.current.element, info.mentionPosition);
-        } else {
-          coordinates = this.getContentEditableCaretPosition(info.mentionPosition);
-        }
-
-        this.tribute.menu.style.cssText = "top: ".concat(coordinates.top, "px;\n                                     left: ").concat(coordinates.left, "px;\n                                     right: ").concat(coordinates.right, "px;\n                                     bottom: ").concat(coordinates.bottom, "px;\n                                     position: absolute;\n                                     display: block;");
-
-        if (coordinates.left === 'auto') {
-          this.tribute.menu.style.left = 'auto';
-        }
-
-        if (coordinates.top === 'auto') {
-          this.tribute.menu.style.top = 'auto';
-        }
-
-        if (scrollTo) this.scrollIntoView();
         window.setTimeout(function () {
-          var menuDimensions = {
-            width: _this.tribute.menu.offsetWidth,
-            height: _this.tribute.menu.offsetHeight
-          };
-
-          var menuIsOffScreen = _this.isMenuOffScreen(coordinates, menuDimensions);
-
-          var menuIsOffScreenHorizontally = window.innerWidth > menuDimensions.width && (menuIsOffScreen.left || menuIsOffScreen.right);
-          var menuIsOffScreenVertically = window.innerHeight > menuDimensions.height && (menuIsOffScreen.top || menuIsOffScreen.bottom);
-
-          if (menuIsOffScreenHorizontally || menuIsOffScreenVertically) {
-            _this.tribute.menu.style.cssText = 'display: none';
-
-            _this.positionMenuAtCaret(scrollTo);
+          if (!_this.tribute.positionMenu) {
+            _this.tribute.menu.style.cssText = "display: block;";
+            return;
           }
-        }, 0);
+
+          if (!_this.isContentEditable(context.element)) {
+            coordinates = _this.getTextAreaOrInputUnderlinePosition(_this.tribute.current.element, info.mentionPosition);
+          } else {
+            coordinates = _this.getContentEditableCaretPosition(info.mentionPosition);
+          }
+
+          _this.tribute.menu.style.cssText = "top: ".concat(coordinates.top, "px;\n                                         left: ").concat(coordinates.left, "px;\n                                         right: ").concat(coordinates.right, "px;\n                                         bottom: ").concat(coordinates.bottom, "px;\n                                         position: absolute;\n                                         display: block;");
+
+          if (coordinates.left === 'auto') {
+            _this.tribute.menu.style.left = 'auto';
+          }
+
+          if (coordinates.top === 'auto') {
+            _this.tribute.menu.style.top = 'auto';
+          }
+
+          window.setTimeout(function () {
+            if (scrollTo) _this.scrollIntoView();
+          }, 1000);
+          window.setTimeout(function () {
+            var menuDimensions = {
+              width: _this.tribute.menu.offsetWidth,
+              height: _this.tribute.menu.offsetHeight
+            };
+
+            var menuIsOffScreen = _this.isMenuOffScreen(coordinates, menuDimensions);
+
+            var menuIsOffScreenHorizontally = window.innerWidth > menuDimensions.width && (menuIsOffScreen.left || menuIsOffScreen.right);
+            var menuIsOffScreenVertically = window.innerHeight > menuDimensions.height && (menuIsOffScreen.top || menuIsOffScreen.bottom);
+
+            if (menuIsOffScreenHorizontally || menuIsOffScreenVertically) {
+              _this.tribute.menu.style.cssText = 'display: none';
+
+              _this.positionMenuAtCaret(scrollTo);
+            }
+          }, 0);
+        }, 1000);
       } else {
         this.tribute.menu.style.cssText = 'display: none';
       }
@@ -1521,7 +1589,8 @@ function () {
 
       this.getDocument().body.removeChild(div);
       return coordinates;
-    }
+    } // TODO: UI Rendering is blocked in FF
+
   }, {
     key: "getContentEditableCaretPosition",
     value: function getContentEditableCaretPosition(selectedNodePosition) {
