@@ -571,7 +571,7 @@ function () {
       element.addEventListener('keydown', element.boundKeydown, false);
       element.addEventListener('keyup', element.boundKeyup, false);
       element.addEventListener('input', element.boundInput, false);
-      element.addEventListener('compositionupdate', element.boundCompostionupdate, false);
+      element.addEventListener('compositionend', element.boundCompostionupdate, false);
     }
   }, {
     key: "unbind",
@@ -579,7 +579,7 @@ function () {
       element.removeEventListener('keydown', element.boundKeydown, false);
       element.removeEventListener('keyup', element.boundKeyup, false);
       element.removeEventListener('input', element.boundInput, false);
-      element.removeEventListener('compositionupdate', element.boundCompostionupdate, false);
+      element.removeEventListener('compositionend', element.boundCompostionupdate, false);
       delete element.boundKeydown;
       delete element.boundKeyup;
       delete element.boundInput;
@@ -588,8 +588,7 @@ function () {
   }, {
     key: "keydown",
     value: function keydown(instance, event) {
-      console.log('[TributeEvents] keydown');
-      if (event.isComposing) return;
+      console.log('[TributeEvents] keydown'); // if (event.isComposing) return
 
       if (instance.shouldDeactivate(event)) {
         instance.tribute.isActive = false;
@@ -644,8 +643,7 @@ function () {
     value: function keyup(instance, event) {
       console.log('[TributeEvents] keyup');
       console.log(instance);
-      console.log(event);
-      if (event.isComposing) return;
+      console.log(event); // if (event.type === 'keyup' && event.isComposing) return
 
       if (instance.inputEvent) {
         instance.inputEvent = false;
@@ -684,7 +682,7 @@ function () {
   }, {
     key: "compositionupdate",
     value: function compositionupdate(instance, event) {
-      console.log('[TributeEvents] compositionupdate');
+      console.log('[TributeEvents] compositionend');
       console.log(instance);
       console.log(event);
       instance.inputEvent = true;
@@ -1588,62 +1586,65 @@ function () {
 
       markerEl = this.getDocument().createElement('span');
       markerEl.id = markerId;
-      markerEl.appendChild(this.getDocument().createTextNode(markerTextChar));
-      range.insertNode(markerEl);
-      sel.removeAllRanges();
-      sel.addRange(prevRange);
-      var rect = markerEl.getBoundingClientRect();
-      var doc = document.documentElement;
-      var windowLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
-      var windowTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
-      var left = 0;
-      var top = 0;
+      markerEl.appendChild(this.getDocument().createTextNode(markerTextChar)); // range.insertNode(markerEl)
+      // sel.removeAllRanges()
+      // sel.addRange(prevRange)
+      // let rect = markerEl.getBoundingClientRect()
+      // let doc = document.documentElement
+      // let windowLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0)
+      // let windowTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0)
+      // let left = 0
+      // let top = 0
+      // if (this.menuContainerIsBody) {
+      //   left = rect.left
+      //   top = rect.top
+      // } else {
+      //   left = markerEl.offsetLeft;
+      //   top = markerEl.offsetTop;
+      // }
+      // let coordinates = {
+      //     left: left + windowLeft,
+      //     top: top + markerEl.offsetHeight + windowTop
+      // }
+      // let windowWidth = window.innerWidth
+      // let windowHeight = window.innerHeight
+      // let menuDimensions = this.getMenuDimensions()
+      // let menuIsOffScreen = this.isMenuOffScreen(coordinates, menuDimensions)
+      // if (menuIsOffScreen.right) {
+      //     coordinates.left = 'auto'
+      //     coordinates.right = windowWidth - rect.left - windowLeft
+      // }
+      // let parentHeight = this.tribute.menuContainer
+      //     ? this.tribute.menuContainer.offsetHeight
+      //     : this.getDocument().body.offsetHeight
+      // if (menuIsOffScreen.bottom) {
+      //     let parentRect = this.tribute.menuContainer
+      //         ? this.tribute.menuContainer.getBoundingClientRect()
+      //         : this.getDocument().body.getBoundingClientRect()
+      //     let scrollStillAvailable = parentHeight - (windowHeight - parentRect.top)
+      //     coordinates.top = 'auto'
+      //     coordinates.bottom = scrollStillAvailable + (windowHeight - rect.top)
+      // }
+      // menuIsOffScreen = this.isMenuOffScreen(coordinates, menuDimensions)
+      // if (menuIsOffScreen.left) {
+      //     coordinates.left = windowWidth > menuDimensions.width
+      //         ? windowLeft + windowWidth - menuDimensions.width
+      //         : windowLeft
+      //     delete coordinates.right
+      // }
+      // if (menuIsOffScreen.top) {
+      //     coordinates.top = windowHeight > menuDimensions.height
+      //         ? windowTop + windowHeight - menuDimensions.height
+      //         : windowTop
+      //     delete coordinates.bottom
+      // }
+      // markerEl.parentNode.removeChild(markerEl)
+      // return coordinates
 
-      if (this.menuContainerIsBody) {
-        left = rect.left;
-        top = rect.top;
-      } else {
-        left = markerEl.offsetLeft;
-        top = markerEl.offsetTop;
-      }
-
-      var coordinates = {
-        left: left + windowLeft,
-        top: top + markerEl.offsetHeight + windowTop
+      return {
+        left: 0,
+        top: 0
       };
-      var windowWidth = window.innerWidth;
-      var windowHeight = window.innerHeight;
-      var menuDimensions = this.getMenuDimensions();
-      var menuIsOffScreen = this.isMenuOffScreen(coordinates, menuDimensions);
-
-      if (menuIsOffScreen.right) {
-        coordinates.left = 'auto';
-        coordinates.right = windowWidth - rect.left - windowLeft;
-      }
-
-      var parentHeight = this.tribute.menuContainer ? this.tribute.menuContainer.offsetHeight : this.getDocument().body.offsetHeight;
-
-      if (menuIsOffScreen.bottom) {
-        var parentRect = this.tribute.menuContainer ? this.tribute.menuContainer.getBoundingClientRect() : this.getDocument().body.getBoundingClientRect();
-        var scrollStillAvailable = parentHeight - (windowHeight - parentRect.top);
-        coordinates.top = 'auto';
-        coordinates.bottom = scrollStillAvailable + (windowHeight - rect.top);
-      }
-
-      menuIsOffScreen = this.isMenuOffScreen(coordinates, menuDimensions);
-
-      if (menuIsOffScreen.left) {
-        coordinates.left = windowWidth > menuDimensions.width ? windowLeft + windowWidth - menuDimensions.width : windowLeft;
-        delete coordinates.right;
-      }
-
-      if (menuIsOffScreen.top) {
-        coordinates.top = windowHeight > menuDimensions.height ? windowTop + windowHeight - menuDimensions.height : windowTop;
-        delete coordinates.bottom;
-      }
-
-      markerEl.parentNode.removeChild(markerEl);
-      return coordinates;
     }
   }, {
     key: "scrollIntoView",

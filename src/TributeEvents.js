@@ -41,7 +41,7 @@ class TributeEvents {
             element.boundKeyup, false)
         element.addEventListener('input',
             element.boundInput, false)
-        element.addEventListener('compositionupdate',
+        element.addEventListener('compositionend',
             element.boundCompostionupdate, false)
 
     }
@@ -53,7 +53,7 @@ class TributeEvents {
             element.boundKeyup, false)
         element.removeEventListener('input',
             element.boundInput, false)
-        element.removeEventListener('compositionupdate',
+        element.removeEventListener('compositionend',
             element.boundCompostionupdate, false)
 
         delete element.boundKeydown
@@ -64,7 +64,7 @@ class TributeEvents {
 
     keydown(instance, event) {
         console.log('[TributeEvents] keydown')
-        if (event.isComposing) return
+        // if (event.isComposing) return
 
         if (instance.shouldDeactivate(event)) {
             instance.tribute.isActive = false
@@ -114,7 +114,7 @@ class TributeEvents {
         console.log('[TributeEvents] keyup')
         console.log(instance)
         console.log(event)
-        if (event.isComposing) return
+        // if (event.type === 'keyup' && event.isComposing) return
 
         if (instance.inputEvent) {
             instance.inputEvent = false
@@ -156,7 +156,7 @@ class TributeEvents {
     }
 
     compositionupdate(instance, event) {
-        console.log('[TributeEvents] compositionupdate')
+        console.log('[TributeEvents] compositionend')
         console.log(instance)
         console.log(event)
         instance.inputEvent = true
