@@ -33,6 +33,7 @@ class TributeEvents {
         element.boundKeydown = this.keydown.bind(element, this);
         element.boundKeyup = this.keyup.bind(element, this);
         element.boundInput = this.input.bind(element, this);
+        element.boundCompostionupdate = this.compositionupdate.bind(element, this);
 
         element.addEventListener('keydown',
             element.boundKeydown, false)
@@ -40,6 +41,9 @@ class TributeEvents {
             element.boundKeyup, false)
         element.addEventListener('input',
             element.boundInput, false)
+        element.addEventListener('compositionupdate',
+            element.boundCompostionupdate, false)
+
     }
 
     unbind(element) {
@@ -49,13 +53,19 @@ class TributeEvents {
             element.boundKeyup, false)
         element.removeEventListener('input',
             element.boundInput, false)
+        element.removeEventListener('compositionupdate',
+            element.boundCompostionupdate, false)
 
         delete element.boundKeydown
         delete element.boundKeyup
         delete element.boundInput
+        delete element.boundCompostionupdate
     }
 
     keydown(instance, event) {
+        console.log('[TributeEvents] keydown')
+        if (event.isComposing) return
+
         if (instance.shouldDeactivate(event)) {
             instance.tribute.isActive = false
             instance.tribute.hideMenu()
@@ -73,6 +83,7 @@ class TributeEvents {
     }
 
     input(instance, event) {
+        console.log('[TributeEvents] input')
         instance.inputEvent = true
         instance.keyup.call(this, instance, event)
     }
@@ -100,6 +111,11 @@ class TributeEvents {
     }
 
     keyup(instance, event) {
+        console.log('[TributeEvents] keyup')
+        console.log(instance)
+        console.log(event)
+        if (event.isComposing) return
+
         if (instance.inputEvent) {
             instance.inputEvent = false
         }
@@ -119,13 +135,54 @@ class TributeEvents {
                 instance.callbacks().triggerChar(event, this, '')
             } else {
                 let keyCode = instance.getKeyCode(instance, this, event)
-    
+
                 if (isNaN(keyCode) || !keyCode) return
-    
+
                 let trigger = instance.tribute.triggers().find(trigger => {
                     return trigger.charCodeAt(0) === keyCode
                 })
-    
+
+                if (typeof trigger !== 'undefined') {
+                    instance.callbacks().triggerChar(event, this, trigger)
+                }
+            }
+        }
+
+        if ((instance.tribute.current.trigger || instance.tribute.autocompleteMode)
+            && instance.commandEvent === false
+            || instance.tribute.isActive && event.keyCode === 8) {
+          instance.tribute.showMenuFor(this, true)
+        }
+    }
+
+    compositionupdate(instance, event) {
+        console.log('[TributeEvents] compositionupdate')
+        console.log(instance)
+        console.log(event)
+        instance.inputEvent = true
+        instance.updateSelection(this)
+
+        if (event.keyCode === 27) return
+
+        if (!instance.tribute.allowSpaces && instance.tribute.hasTrailingSpace) {
+            instance.tribute.hasTrailingSpace = false;
+            instance.commandEvent = true;
+            instance.callbacks()["space"](event, this);
+            return
+        }
+
+        if (!instance.tribute.isActive) {
+            if (instance.tribute.autocompleteMode) {
+                instance.callbacks().triggerChar(event, this, '')
+            } else {
+                let keyCode = instance.getKeyCode(instance, this, event)
+
+                if (isNaN(keyCode) || !keyCode) return
+
+                let trigger = instance.tribute.triggers().find(trigger => {
+                    return trigger.charCodeAt(0) === keyCode
+                })
+
                 if (typeof trigger !== 'undefined') {
                     instance.callbacks().triggerChar(event, this, trigger)
                 }
