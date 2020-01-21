@@ -1569,7 +1569,8 @@ function () {
 
       this.getDocument().body.removeChild(div);
       return coordinates;
-    }
+    } // TODO: Should be fixed not to break composition
+
   }, {
     key: "getContentEditableCaretPosition",
     value: function getContentEditableCaretPosition(selectedNodePosition) {
@@ -1586,10 +1587,12 @@ function () {
 
       markerEl = this.getDocument().createElement('span');
       markerEl.id = markerId;
-      markerEl.appendChild(this.getDocument().createTextNode(markerTextChar)); // range.insertNode(markerEl)
-      // sel.removeAllRanges()
-      // sel.addRange(prevRange)
-      // let rect = markerEl.getBoundingClientRect()
+      markerEl.appendChild(this.getDocument().createTextNode(markerTextChar)); // Breaks composing in FF
+      // range.insertNode(markerEl)
+      // Breaks composing in Chrome
+
+      sel.removeAllRanges();
+      sel.addRange(prevRange); // let rect = markerEl.getBoundingClientRect()
       // let doc = document.documentElement
       // let windowLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0)
       // let windowTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0)

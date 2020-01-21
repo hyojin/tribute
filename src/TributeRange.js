@@ -570,7 +570,11 @@ class TributeRange {
         markerEl.id = markerId
 
         markerEl.appendChild(this.getDocument().createTextNode(markerTextChar))
+
+        // Breaks composing on FF, but OK on Chrome
         // range.insertNode(markerEl)
+
+        // Breaks composing on Chrome, but OK on FF
         // sel.removeAllRanges()
         // sel.addRange(prevRange)
 
