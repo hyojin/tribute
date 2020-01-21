@@ -63,7 +63,7 @@ class TributeEvents {
     }
 
     keydown(instance, event) {
-        console.log('[TributeEvents] keydown')
+        //console.log('[TributeEvents] keydown')
         // if (event.isComposing) return
 
         if (instance.shouldDeactivate(event)) {
@@ -83,7 +83,7 @@ class TributeEvents {
     }
 
     input(instance, event) {
-        console.log('[TributeEvents] input')
+        //console.log('[TributeEvents] input')
         instance.inputEvent = true
         instance.keyup.call(this, instance, event)
     }
@@ -111,9 +111,9 @@ class TributeEvents {
     }
 
     keyup(instance, event) {
-        console.log('[TributeEvents] keyup')
-        console.log(instance)
-        console.log(event)
+        //console.log('[TributeEvents] keyup')
+        //console.log(instance)
+        //console.log(event)
         // if (event.type === 'keyup' && event.isComposing) return
 
         if (instance.inputEvent) {
@@ -156,9 +156,9 @@ class TributeEvents {
     }
 
     compositionupdate(instance, event) {
-        console.log('[TributeEvents] compositionend')
-        console.log(instance)
-        console.log(event)
+        //console.log('[TributeEvents] compositionend')
+        //console.log(instance)
+        //console.log(event)
         instance.inputEvent = true
         instance.updateSelection(this)
 

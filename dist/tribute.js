@@ -588,8 +588,8 @@ function () {
   }, {
     key: "keydown",
     value: function keydown(instance, event) {
-      console.log('[TributeEvents] keydown'); // if (event.isComposing) return
-
+      //console.log('[TributeEvents] keydown')
+      // if (event.isComposing) return
       if (instance.shouldDeactivate(event)) {
         instance.tribute.isActive = false;
         instance.tribute.hideMenu();
@@ -607,7 +607,7 @@ function () {
   }, {
     key: "input",
     value: function input(instance, event) {
-      console.log('[TributeEvents] input');
+      //console.log('[TributeEvents] input')
       instance.inputEvent = true;
       instance.keyup.call(this, instance, event);
     }
@@ -641,10 +641,10 @@ function () {
   }, {
     key: "keyup",
     value: function keyup(instance, event) {
-      console.log('[TributeEvents] keyup');
-      console.log(instance);
-      console.log(event); // if (event.type === 'keyup' && event.isComposing) return
-
+      //console.log('[TributeEvents] keyup')
+      //console.log(instance)
+      //console.log(event)
+      // if (event.type === 'keyup' && event.isComposing) return
       if (instance.inputEvent) {
         instance.inputEvent = false;
       }
@@ -682,9 +682,9 @@ function () {
   }, {
     key: "compositionupdate",
     value: function compositionupdate(instance, event) {
-      console.log('[TributeEvents] compositionend');
-      console.log(instance);
-      console.log(event);
+      //console.log('[TributeEvents] compositionend')
+      //console.log(instance)
+      //console.log(event)
       instance.inputEvent = true;
       instance.updateSelection(this);
       if (event.keyCode === 27) return;
@@ -1574,9 +1574,8 @@ function () {
   }, {
     key: "getContentEditableCaretPosition",
     value: function getContentEditableCaretPosition(selectedNodePosition) {
-      var markerTextChar = '﻿';
-      var markerEl,
-          markerId = "sel_".concat(new Date().getTime(), "_").concat(Math.random().toString().substr(2));
+      // let markerTextChar = '﻿'
+      // let markerEl, markerId = `sel_${new Date().getTime()}_${Math.random().toString().substr(2)}`
       var range;
       var sel = this.getWindowSelection();
       var prevRange = sel.getRangeAt(0);
@@ -1584,70 +1583,76 @@ function () {
       range.setStart(sel.anchorNode, selectedNodePosition);
       range.setEnd(sel.anchorNode, selectedNodePosition);
       range.collapse(false); // Create the marker element containing a single invisible character using DOM methods and insert it
-
-      markerEl = this.getDocument().createElement('span');
-      markerEl.id = markerId;
-      markerEl.appendChild(this.getDocument().createTextNode(markerTextChar)); // Breaks composing in FF
+      // markerEl = this.getDocument().createElement('span')
+      // markerEl.id = markerId
+      // markerEl.appendChild(this.getDocument().createTextNode(markerTextChar))
+      // Breaks composing on FF, but OK on Chrome
       // range.insertNode(markerEl)
-      // Breaks composing in Chrome
+      // Breaks composing on Chrome, but OK on FF
+      // sel.removeAllRanges()
+      // sel.addRange(prevRange)
+      // let rect = markerEl.getBoundingClientRect()
 
-      sel.removeAllRanges();
-      sel.addRange(prevRange); // let rect = markerEl.getBoundingClientRect()
-      // let doc = document.documentElement
-      // let windowLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0)
-      // let windowTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0)
-      // let left = 0
-      // let top = 0
-      // if (this.menuContainerIsBody) {
-      //   left = rect.left
-      //   top = rect.top
-      // } else {
-      //   left = markerEl.offsetLeft;
-      //   top = markerEl.offsetTop;
-      // }
-      // let coordinates = {
-      //     left: left + windowLeft,
-      //     top: top + markerEl.offsetHeight + windowTop
-      // }
-      // let windowWidth = window.innerWidth
-      // let windowHeight = window.innerHeight
-      // let menuDimensions = this.getMenuDimensions()
-      // let menuIsOffScreen = this.isMenuOffScreen(coordinates, menuDimensions)
-      // if (menuIsOffScreen.right) {
-      //     coordinates.left = 'auto'
-      //     coordinates.right = windowWidth - rect.left - windowLeft
-      // }
-      // let parentHeight = this.tribute.menuContainer
-      //     ? this.tribute.menuContainer.offsetHeight
-      //     : this.getDocument().body.offsetHeight
-      // if (menuIsOffScreen.bottom) {
-      //     let parentRect = this.tribute.menuContainer
-      //         ? this.tribute.menuContainer.getBoundingClientRect()
-      //         : this.getDocument().body.getBoundingClientRect()
-      //     let scrollStillAvailable = parentHeight - (windowHeight - parentRect.top)
-      //     coordinates.top = 'auto'
-      //     coordinates.bottom = scrollStillAvailable + (windowHeight - rect.top)
-      // }
-      // menuIsOffScreen = this.isMenuOffScreen(coordinates, menuDimensions)
-      // if (menuIsOffScreen.left) {
-      //     coordinates.left = windowWidth > menuDimensions.width
-      //         ? windowLeft + windowWidth - menuDimensions.width
-      //         : windowLeft
-      //     delete coordinates.right
-      // }
-      // if (menuIsOffScreen.top) {
-      //     coordinates.top = windowHeight > menuDimensions.height
-      //         ? windowTop + windowHeight - menuDimensions.height
-      //         : windowTop
-      //     delete coordinates.bottom
-      // }
-      // markerEl.parentNode.removeChild(markerEl)
-      // return coordinates
+      var rect = range.getBoundingClientRect(); // console.log('markerEl')
+      // console.log(rect)
+      // console.log('Range')
+      // console.log(range.getBoundingClientRect())
 
-      return {
-        left: 0,
-        top: 0
+      var doc = document.documentElement;
+      var windowLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+      var windowTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
+      var left = 0;
+      var top = 0;
+
+      if (this.menuContainerIsBody) {
+        left = rect.left;
+        top = rect.top;
+      } else {
+        left = rect.left;
+        top = rect.top; //   left = markerEl.offsetLeft;
+        //   top = markerEl.offsetTop;
+      }
+
+      var coordinates = {
+        left: left + windowLeft,
+        top: top + rect.height + windowTop
       };
+      var windowWidth = window.innerWidth;
+      var windowHeight = window.innerHeight;
+      var menuDimensions = this.getMenuDimensions();
+      var menuIsOffScreen = this.isMenuOffScreen(coordinates, menuDimensions);
+
+      if (menuIsOffScreen.right) {
+        coordinates.left = 'auto';
+        coordinates.right = windowWidth - rect.left - windowLeft;
+      }
+
+      var parentHeight = this.tribute.menuContainer ? this.tribute.menuContainer.offsetHeight : this.getDocument().body.offsetHeight;
+
+      if (menuIsOffScreen.bottom) {
+        var parentRect = this.tribute.menuContainer ? this.tribute.menuContainer.getBoundingClientRect() : this.getDocument().body.getBoundingClientRect();
+        var scrollStillAvailable = parentHeight - (windowHeight - parentRect.top);
+        coordinates.top = 'auto';
+        coordinates.bottom = scrollStillAvailable + (windowHeight - rect.top);
+      }
+
+      menuIsOffScreen = this.isMenuOffScreen(coordinates, menuDimensions);
+
+      if (menuIsOffScreen.left) {
+        coordinates.left = windowWidth > menuDimensions.width ? windowLeft + windowWidth - menuDimensions.width : windowLeft;
+        delete coordinates.right;
+      }
+
+      if (menuIsOffScreen.top) {
+        coordinates.top = windowHeight > menuDimensions.height ? windowTop + windowHeight - menuDimensions.height : windowTop;
+        delete coordinates.bottom;
+      } // markerEl.parentNode.removeChild(markerEl)
+
+
+      return coordinates; // return {
+      //     left: 0,
+      //     top: 0,
+      // }
     }
   }, {
     key: "scrollIntoView",
